@@ -1,83 +1,61 @@
 import React, { useState, useEffect } from 'react';
 
 function App() {
-	const initialFormValues = {
-		username: '',
-		password: '',
-		hasLowercaseLetter: false,
-		hasUppercaseLetter: false,
-		hasDigit: false,
-		hasSixCharacters: false,
-		isRegisterButtonEnabled: false,
+	const [username, setUsername] = useState('');
+	const [password, setPassword] = useState('');
+	const [hasLowercaseLetter, setHasLowercaseLetter] = useState(false);
+	const [hasUppercaseLetter, setHasUppercaseLetter] = useState(false);
+	const [hasDigit, setHasDigit] = useState(false);
+	const [hasSixCharacters, setHasSixCharacters] = useState(false);
+	const [registerButtonDisabled, setRegisterButtonDisabled] = useState(true);
+
+	const resetToDefaultValues = () => {
+		setUsername('');
+		setPassword('');
+		setHasLowercaseLetter(false);
+		setHasUppercaseLetter(false);
+		setHasDigit(false);
+		setHasSixCharacters(false);
+		setRegisterButtonDisabled(true);
 	};
 
-	const [stateValuesObject, setStateValuesObject] = useState({
-		...initialFormValues,
-	});
+	const handleUsername = (event) => {
+		setUsername(event.target.value);
+	};
 
-	const handleChange = (event) => {
-		const { name, value } = event.target;
-		setStateValuesObject((previousState) => ({
-			...previousState,
-			[name]: value,
-		}));
+	const handlePassword = (event) => {
+		setPassword(event.target.value);
 	};
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		alert(
-			`Username: ${stateValuesObject.username}, Password: ${stateValuesObject.password}`,
-		);
-		setStateValuesObject({ ...initialFormValues });
+		alert(`Username: ${username}, Password: ${password}`);
+		resetToDefaultValues();
 	};
 
 	useEffect(() => {
-		const regexForLowerCase = new RegExp(/[a-z]/);
-		const regexForUpperCase = new RegExp(/[A-Z]/);
-		const regexForDigit = new RegExp(/\d/);
-		const regexForSixCharacters = new RegExp(/.{6,}/);
-		if (
-			regexForLowerCase.test(stateValuesObject.password) !==
-			stateValuesObject.hasLowercaseLetter
-		) {
-			setStateValuesObject((previousState) => ({
-				...previousState,
-				hasLowercaseLetter: !stateValuesObject.hasLowercaseLetter,
-			}));
-		}
-		if (
-			regexForUpperCase.test(stateValuesObject.password) !==
-			stateValuesObject.hasUppercaseLetter
-		) {
-			setStateValuesObject((previousState) => ({
-				...previousState,
-				hasUppercaseLetter: !stateValuesObject.hasUppercaseLetter,
-			}));
-		}
-		if (
-			regexForDigit.test(stateValuesObject.password) !==
-			stateValuesObject.hasDigit
-		) {
-			setStateValuesObject((previousState) => ({
-				...previousState,
-				hasDigit: !stateValuesObject.hasDigit,
-			}));
-		}
-		if (
-			regexForSixCharacters.test(stateValuesObject.password) !==
-			stateValuesObject.hasSixCharacters
-		) {
-			setStateValuesObject((previousState) => ({
-				...previousState,
-				hasSixCharacters: !stateValuesObject.hasSixCharacters,
-			}));
-		}
-		console.log(stateValuesObject);
-	}, [stateValuesObject]);
-
-	/* Ovaj UseEffect se izvrsava najcesce dva puta -
-	Kad se promjenom passworda ispuni uslov i za promjenu neke boolean vrijednosti iz state-a.
-	Osim toga, izvrsav se i kad se mijenja username. */
+		/[a-z]/.test(password) !== hasLowercaseLetter &&
+			setHasLowercaseLetter(!hasLowercaseLetter);
+		/[A-Z]/.test(password) !== hasUppercaseLetter &&
+			setHasUppercaseLetter(!hasUppercaseLetter);
+		/\d/.test(password) !== hasDigit && setHasDigit(!hasDigit);
+		/.{6,}/.test(password) !== hasSixCharacters &&
+			setHasSixCharacters(!hasSixCharacters);
+		(username &&
+			hasLowercaseLetter &&
+			hasUppercaseLetter &&
+			hasDigit &&
+			hasSixCharacters) === registerButtonDisabled &&
+			setRegisterButtonDisabled(!registerButtonDisabled);
+	}, [
+		password,
+		hasLowercaseLetter,
+		hasUppercaseLetter,
+		hasDigit,
+		hasSixCharacters,
+		registerButtonDisabled,
+		username,
+	]);
 
 	return (
 		<div className="App flex h-screen justify-center items-center bg-gray-100">
@@ -86,23 +64,23 @@ function App() {
 					<label className="flex flex-col font-semibold mb-2">
 						Username:
 						<input
-							className="font-light"
+							className="font-light text-sm md:text-base"
 							type="text"
 							placeholder=" Enter username"
 							name="username"
-							value={stateValuesObject.username}
-							onChange={handleChange}
+							value={username}
+							onChange={handleUsername}
 						/>
 					</label>
 					<label className="flex flex-col font-semibold my-2">
 						Password:
 						<input
-							className="font-light"
+							className="font-light text-sm md:text-base"
 							type="text"
 							placeholder=" Enter password"
 							name="password"
-							value={stateValuesObject.password}
-							onChange={handleChange}
+							value={password}
+							onChange={handlePassword}
 						/>
 					</label>
 					<div className="flex flex-col text-xs md:text-sm">
@@ -112,7 +90,7 @@ function App() {
 								className="-ml-5 mr-2 mt-1"
 								type="checkbox"
 								readOnly={true}
-								checked={stateValuesObject.hasLowercaseLetter}
+								checked={hasLowercaseLetter}
 							/>
 							<span>one lowercase letter,</span>
 						</div>
@@ -121,7 +99,7 @@ function App() {
 								className="-ml-5 mr-2 mt-1"
 								type="checkbox"
 								readOnly={true}
-								checked={stateValuesObject.hasUppercaseLetter}
+								checked={hasUppercaseLetter}
 							/>
 							<span>one uppercase letter,</span>
 						</div>
@@ -130,7 +108,7 @@ function App() {
 								className="-ml-5 mr-2 mt-1"
 								type="checkbox"
 								readOnly={true}
-								checked={stateValuesObject.hasDigit}
+								checked={hasDigit}
 							/>
 							<span>one digit and</span>
 						</div>
@@ -139,12 +117,15 @@ function App() {
 								className="-ml-5 mr-2 mt-1"
 								type="checkbox"
 								readOnly={true}
-								checked={stateValuesObject.hasSixCharacters}
+								checked={hasSixCharacters}
 							/>
 							<span>must have at least six characters.</span>
 						</div>
 						<button
-							className="mt-2 bg-blue-300 rounded w-20 p-1.5 font-bold"
+							disabled={registerButtonDisabled}
+							className={`${
+								registerButtonDisabled && 'cursor-not-allowed'
+							} mt-2 bg-blue-300 rounded w-20 p-1.5 font-bold`}
 							type="submit"
 						>
 							Register
